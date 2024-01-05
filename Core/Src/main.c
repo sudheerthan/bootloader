@@ -42,10 +42,21 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+
+typedef void (*ptrf) (uint32_t dlyticks);
+
 unsigned char __attribute__ ((section(".myBufSectionRAM"))) buf_ram[128];
 const unsigned char __attribute__((section(".myBufSectionFLASH"))) buf_flash[10] = {1,2,3,4,5,6,7,8,9,0};
 
 #define LOCATE_FUNC __attribute__((section(".mysection")))
+
+void __attribute__ ((section(".RamFunc"))) TurnOnLED(GPIO_PinState pin_state){
+	if(pin_state != GPIO_PIN_RESET){
+		LD2_GPIO_Port ->BSRR = (uint32_t) LD2_Pin;
+	}else
+		LD2_GPIO_Port ->BRR = (uint32_t) LD2_Pin;
+}
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,6 +73,9 @@ void LOCATE_FUNC Blink(uint32_t dlyticks){
 	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	HAL_Delay(dlyticks);
 }
+static ptrf Functions[]={
+		Blink
+};
 /* USER CODE END 0 */
 
 /**
@@ -101,7 +115,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  Blink(100);
+	 // Blink(100);
+	  //TurnOnLED(GPIO_PIN_SET);
+	  (*Functions[0])(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
